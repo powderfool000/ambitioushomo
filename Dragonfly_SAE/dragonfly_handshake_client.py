@@ -503,40 +503,34 @@ class Peer:
 
 
 def handshake():
-    #mac1, mac2 = '08:00:27:30:77:fa', '08:00:27:4e:4a:b4'
+    
+    #get the machine's MAC address
     own_mac = (':'.join(re.findall('..', '%012x' % uuid.getnode())))
     print (own_mac)
+    
     sta = Peer('abc1238', own_mac, 'STA')
-    #ap = Peer('abc1238', own_mac, 'AP')
 
     logger.info('Starting hunting and pecking to derive PE...\n')
 
+    #send MAC address to server
     sock.send(own_mac.encode())
+    
+    #receive the server's MAC address
     other_mac = sock.recv(1024).decode()
     print ('Received', other_mac)
-
     sta.initiate(other_mac)
-    #ap.initiate(mac1)
 
     print()
     logger.info('Starting dragonfly commit exchange...\n')
 
     scalar_sta, element_sta = sta.commit_exchange()
-    #scalar_ap, element_ap = ap.commit_exchange()
-    """
-    while 1:
-    	sock.sendall(str(scalar_sta).encode())
-    sock.sendall(str(element_sta).encode())
-    """
+   
+    #send it's scalar and element values to the server
     sock.sendall(str.encode("\n".join([str(scalar_sta), str(element_sta)])))
     print()
     logger.info('Computing shared secret...\n')
 
-    #sta_token = sta.compute_shared_secret(element_ap, scalar_ap, mac2)
-    #ap_token = ap.compute_shared_secret(element_sta, scalar_sta, mac1)
-    #scalar_ap = sock.recv(1024).decode()
-    #element_ap = sock.recv(1024).decode()
-
+    #receive the server's scalar and element values
     scalar_element_ap = sock.recv(1024).decode()
     data = scalar_element_ap.split('\n')
     print (data[0])
@@ -560,7 +554,7 @@ def handshake():
     ap_token = sock.recv(1024).decode()
 
     sta.confirm_exchange(ap_token)
-    #ap.confirm_exchange(sta_token)
+    sock.close()
 
 def tests():
     """
