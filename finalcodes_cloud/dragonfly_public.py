@@ -506,16 +506,6 @@ class Peer:
         digest = H.digest()
         return digest
 
-BLOCK_SIZE = 16
-pad = lambda s: bytes(s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) %     BLOCK_SIZE), 'utf-8')
-unpad = lambda s: s[:-ord(s[-1:])]
- 
- 
-def decrypt(enc, PMK_Key):
-    	enc = base64.b64decode(enc)
-    	iv = enc[:16]
-    	cipher = AES.new(PMK_Key, AES.MODE_CBC, iv)
-    	return unpad(cipher.decrypt(enc[16:]))
 
 def decrypting(key, filename):
 	chunksize = 64 * 1024
@@ -584,13 +574,6 @@ def handshake():
     
     PMK_Key = sta.confirm_exchange(ap_token)
     #print (PMK_Key)
-
-    #encrypted = sock.recv(1024).decode()
-    #print ("Encrypted ciphertext: ", encrypted)
-
-    # Decrypt using PMK_Key
-    #decrypted = decrypt(encrypted, PMK_Key)
-    #print (decrypted.decode())
 
     # Open the received cloud key from the key generator
     with open('cloud.key.hacklab', 'wb') as s:
