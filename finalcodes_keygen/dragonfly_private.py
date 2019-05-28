@@ -512,17 +512,6 @@ class Peer:
         digest = H.digest()
         return digest
 
-BLOCK_SIZE = 16
-pad = lambda s: bytes(s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) %     BLOCK_SIZE), 'utf-8')
-unpad = lambda s: s[:-ord(s[-1:])]
- 
-
-def encrypt(raw, PMK):
-    	raw = pad(raw)
-    	iv = Random.new().read(AES.block_size)
-    	cipher = AES.new(PMK, AES.MODE_CBC, iv)
-    	return base64.b64encode(iv + cipher.encrypt(raw))
-
 def encrypting(key, filename):
     	chunksize = 64*1024
     	outputFile = filename+".hacklab"
@@ -592,11 +581,6 @@ def handshake():
 
     	PMK_Key = ap.confirm_exchange(sta_token)
     	#print (PMK_Key)
- 
-    	# First let us encrypt secret message
-    	encrypted = encrypt("This is a secret message", PMK_Key)
-    	print("Encrypted ciphertext: ", encrypted.decode('utf-8'))
-    	connection.send(encrypted)
 
     	# Running c++ Adder_alice to get the secret key
     	print ("Getting keys...\n")
