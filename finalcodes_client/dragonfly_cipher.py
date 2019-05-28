@@ -526,14 +526,6 @@ def encrypt(raw, PMK):
     	iv = Random.new().read(AES.block_size)
     	cipher = AES.new(PMK, AES.MODE_CBC, iv)
     	return base64.b64encode(iv + cipher.encrypt(raw))
- 
- 
-#def decrypt(enc, password):
-    	#private_key = hashlib.sha256(password.encode("utf-8")).digest()
-    	#enc = base64.b64decode(enc)
-    	#iv = enc[:16]
-    	#cipher = AES.new(private_key, AES.MODE_CBC, iv.decode("utf-8"))
-    	#return unpad(cipher.decrypt(enc[16:]))
 
 def encrypting(key, filename):
     	chunksize = 64*1024
@@ -557,16 +549,13 @@ def encrypting(key, filename):
     	return outputFile
     
 def handshake():
-    #mac1, mac2 = '44:67:2D:2C:91:A6', '44:37:2C:2F:91:36'
     own_mac = (':'.join(re.findall('..', '%012x' % uuid.getnode())))
     print (own_mac)
-    #mac2 = '44:37:2C;2F:91:36'
-    #sta = Peer('abc1238', own_mac, 'STA')
+    
     ap = Peer('abc1238', own_mac, 'AP')
 
     logger.info('Starting hunting and pecking to derive PE...\n')
 
-    #sta.initiate(mac2)
     sock.listen(1)
     connection, client_address = sock.accept()
     with connection:
@@ -579,23 +568,13 @@ def handshake():
     	print()
     	logger.info('Starting dragonfly commit exchange...\n')
 
-    #scalar_sta, element_sta = sta.commit_exchange()
     	scalar_ap, element_ap = ap.commit_exchange()
-    
-    #while 1:
-        #connection.sendall(str(scalar_ap).encode())
-        #if not scalar_ap:
-        	#break
-    #connection.sendall(str(element_ap).encode())
 
     	connection.sendall(str.encode("\n".join([str(scalar_ap), str(element_ap)])))
     	print()
     	logger.info('Computing shared secret...\n')
 
-    #sta_token = sta.compute_shared_secret(element_ap, scalar_ap, mac2)
-    #ap_token = ap.compute_shared_secret(element_sta, scalar_sta, mac1)
-    #scalar_sta = connection.recv(1024).decode()
-    #element_sta = connection.recv(1024).decode()
+        # receiving scalar and element
     	scalar_element_ap = connection.recv(1024).decode()
     	data = scalar_element_ap.split('\n')
     	print (data[0])
@@ -617,82 +596,44 @@ def handshake():
     	logger.info('Confirm Exchange...\n')
     	sta_token = connection.recv(1024).decode()
 
-    #sta.confirm_exchange(ap_token)
     	PMK_Key = ap.confirm_exchange(sta_token)
-    	#print (PMK_Key)
- 
-    	# First let us encrypt secret message
-    	#encrypted = encrypt("This is a secret message", PMK_Key)
-    	#print("Encrypted ciphertext: ", encrypted.decode('utf-8'))
-    	#connection.send(encrypted)
+    	#print (PMK_Key)   	
 
-    	# Running c++
-    	#cmd = "Adder_alice.c"
+    	# Running c++ Adder_alice to get the cloud data
     	print ("Getting ciphertext...\n")
-    	#subprocess.call(["gcc",cmd])
-    	#subprocess.call(["gcc","Adder_alice.c"])
-    	#subprocess.call("./Adder_test_alice")
-    	#key = subprocess.call("./Adder_test_alice")
     	subprocess.call("./Adder_alice")
-    	#s = open("secret.key", "rb")
-    	#secret_key = s.read()
     	print("Printing ciphertext...\n")
     	cloud_data = "cloud.data"
-    	#secret_key = "secret.key"
-    	#key = hashlib.sha256(secret_key.encode('utf-8')).digest()
-
-    	#output_ciphertext = encrypting(PMK_Key, cloud_data)
-    	#print("This file ", output_ciphertext, " is encrypted ciphertext\n")
     	print("This file ", cloud_data, "is our ciphertext\n")
-    	#f = open(output_ciphertext, "rb")
-    	#content = f.read(8192)
-    	#print (content)
-    	#while (content):
-    		#connection.send(content)
-    		#print ("Sent", repr(content))
-    		#content = f.read(8192)
-    	#f.close()
-    	#print('Original file size: ', os.path.getsize(cloud_data))
-    	#print ('Encrypted file size: ', os.path.getsize(output_ciphertext))
-
+    	
+        # Open and read the contents in the cloud data
     	f = open(cloud_data, "rb")
     	content = f.read(8192)
     	print (content)
 
     	fsize = os.path.getsize(cloud_data)
+        # Send the file size of the data to the cloud server
     	connection.send(str(fsize).encode('utf-8'))
 
-    	#try:
-    		#while (content):
-    			#connection.send(content)
-    			#print ("Sent", repr(content))
-    			#content = f.read(8192)
-    		#f.close()
-    	#except SocketError as e:
-    		#if e.errno != errno.ECONNRESET:
-    			#raise
-    		#pass
+    	# Sending the cloud data to the cloud server for computation
     	BUFFER_SIZE = 1024
     	with open(cloud_data, 'rb') as f:
-    		#connection.send(b'BEGIN')
     		content = f.read(BUFFER_SIZE)
     		while content:
-    			#content = f.read(8192)
     			connection.send(content)
     			print ("Sent", repr(content))
     			content = f.read(BUFFER_SIZE)
-    			#if not content:
-    				#break
-    		#content = f.read(8192)
-    		#connection.send(b'ENDED')
+    			
     		f.close()
 
+        # Get the file size of the sent data
     	print('Original file size: ', os.path.getsize(cloud_data))
 
     	print('Please wait while the stupid server take some time...\n')
     	indication = connection.recv(1024)
     	print(indication.decode('utf-8'))
 
+        # Open the received computed answer from the cloud server
     	with open('answer.data', 'wb') as a:
     		print ('File opened...\n')
     		msg = connection.recv(BUFFER_SIZE)
@@ -709,12 +650,15 @@ def handshake():
     				print('Breaking from file write')
     				break
     	
-    	print('Original file size: ', os.path.getsize(cloud_data))	
+    	print('Original file size: ', os.path.getsize(cloud_data))
+        # Get the file size of the received computed answer
     	print ('Answer data file size: ', os.path.getsize('answer.data'))
 
+        # Get the MD5 checksum of the cloud data and answer
     	os.system("md5sum cloud.data")
     	os.system("md5sum answer.data")
 
+        # Process the calculation
     	secret_key = 'secret.key'
     	answer_data = 'answer.data'
     	subprocess.call('./Adder_verif')
