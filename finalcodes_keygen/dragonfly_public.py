@@ -595,9 +595,9 @@ def handshake():
     	#print (PMK_Key)
  
     	# First let us encrypt secret message
-    	encrypted = encrypt("This is a secret message", PMK_Key)
-    	print("Encrypted ciphertext: ", encrypted.decode('utf-8'))
-    	connection.send(encrypted)
+    	#encrypted = encrypt("This is a secret message", PMK_Key)
+    	#print("Encrypted ciphertext: ", encrypted.decode('utf-8'))
+    	#connection.send(encrypted)
 
     	# Running c++ Adder_alice to get the public key
     	print ("Getting keys...\n")
