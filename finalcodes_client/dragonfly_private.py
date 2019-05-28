@@ -511,18 +511,8 @@ BLOCK_SIZE = 16
 pad = lambda s: bytes(s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) %     BLOCK_SIZE), 'utf-8')
 unpad = lambda s: s[:-ord(s[-1:])]
  
-#password = input("Enter encryption password: ")
-
-#def encrypt(raw, PMK):
-    	#private_key = hashlib.sha256(password.encode("utf-8")).digest()
-    	#raw = pad(raw)
-    	#iv = Random.new().read(AES.block_size)
-    	#cipher = AES.new(PMK, AES.MODE_CBC, iv)
-    	#return base64.b64encode(iv + cipher.encrypt(raw))
- 
  
 def decrypt(enc, PMK_Key):
-    	#private_key = hashlib.sha256(password.encode("utf-8")).digest()
     	enc = base64.b64decode(enc)
     	iv = enc[:16]
     	cipher = AES.new(PMK_Key, AES.MODE_CBC, iv)
@@ -549,11 +539,9 @@ def decrypting(key, filename):
 
 
 def handshake():
-    #mac1, mac2 = '44:67:2D:2C:91:A6', '44:37:2C:2F:91:36'
     own_mac = (':'.join(re.findall('..', '%012x' % uuid.getnode())))
     print (own_mac)
     sta = Peer('abc1238', own_mac, 'STA')
-    #ap = Peer('abc1238', own_mac, 'AP')
 
     logger.info('Starting hunting and pecking to derive PE...\n')
 
@@ -562,26 +550,16 @@ def handshake():
     print ('Received', other_mac)
 
     sta.initiate(other_mac)
-    #ap.initiate(mac1)
 
     print()
     logger.info('Starting dragonfly commit exchange...\n')
 
     scalar_sta, element_sta = sta.commit_exchange()
-    #scalar_ap, element_ap = ap.commit_exchange()
-    """
-    while 1:
-    	sock.sendall(str(scalar_sta).encode())
-    sock.sendall(str(element_sta).encode())
-    """
+    
     sock.sendall(str.encode("\n".join([str(scalar_sta), str(element_sta)])))
     print()
     logger.info('Computing shared secret...\n')
 
-    #sta_token = sta.compute_shared_secret(element_ap, scalar_ap, mac2)
-    #ap_token = ap.compute_shared_secret(element_sta, scalar_sta, mac1)
-    #scalar_ap = sock.recv(1024).decode()
-    #element_ap = sock.recv(1024).decode()
 
     scalar_element_ap = sock.recv(1024).decode()
     data = scalar_element_ap.split('\n')
@@ -616,6 +594,7 @@ def handshake():
     decrypted = decrypt(encrypted, PMK_Key)
     print (decrypted.decode())
 
+    # Open the received secret file from the key generator
     with open('received_secret_key', 'wb') as s:
     	print ('File opened...\n')
     	while True:
