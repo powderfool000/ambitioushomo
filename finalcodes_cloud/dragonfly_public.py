@@ -585,8 +585,8 @@ def handshake():
     PMK_Key = sta.confirm_exchange(ap_token)
     #print (PMK_Key)
 
-    encrypted = sock.recv(1024).decode()
-    print ("Encrypted ciphertext: ", encrypted)
+    #encrypted = sock.recv(1024).decode()
+    #print ("Encrypted ciphertext: ", encrypted)
 
     # Decrypt using PMK_Key
     decrypted = decrypt(encrypted, PMK_Key)
