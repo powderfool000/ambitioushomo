@@ -606,10 +606,12 @@ def handshake():
     	cloud_data = "cloud.data"
     	print("This file ", cloud_data, "is our ciphertext\n")
     	
+        '''
         # Open and read the contents in the cloud data
     	f = open(cloud_data, "rb")
     	content = f.read(8192)
     	print (content)
+        '''
 
     	fsize = os.path.getsize(cloud_data)
         # Send the file size of the data to the cloud server
