@@ -589,8 +589,8 @@ def handshake():
     #print ("Encrypted ciphertext: ", encrypted)
 
     # Decrypt using PMK_Key
-    decrypted = decrypt(encrypted, PMK_Key)
-    print (decrypted.decode())
+    #decrypted = decrypt(encrypted, PMK_Key)
+    #print (decrypted.decode())
 
     # Open the received cloud key from the key generator
     with open('cloud.key.hacklab', 'wb') as s:
