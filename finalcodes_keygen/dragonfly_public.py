@@ -516,22 +516,12 @@ BLOCK_SIZE = 16
 pad = lambda s: bytes(s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) %     BLOCK_SIZE), 'utf-8')
 unpad = lambda s: s[:-ord(s[-1:])]
  
-#password = input("Enter encryption password: ")
 
 def encrypt(raw, PMK):
-    	#private_key = hashlib.sha256(password.encode("utf-8")).digest()
     	raw = pad(raw)
     	iv = Random.new().read(AES.block_size)
     	cipher = AES.new(PMK, AES.MODE_CBC, iv)
     	return base64.b64encode(iv + cipher.encrypt(raw))
- 
- 
-#def decrypt(enc, password):
-    	#private_key = hashlib.sha256(password.encode("utf-8")).digest()
-    	#enc = base64.b64decode(enc)
-    	#iv = enc[:16]
-    	#cipher = AES.new(private_key, AES.MODE_CBC, iv.decode("utf-8"))
-    	#return unpad(cipher.decrypt(enc[16:]))
 
 def encrypting(key, filename):
     	chunksize = 64*1024
@@ -555,16 +545,13 @@ def encrypting(key, filename):
     	return outputFile
     
 def handshake():
-    #mac1, mac2 = '44:67:2D:2C:91:A6', '44:37:2C:2F:91:36'
     own_mac = (':'.join(re.findall('..', '%012x' % uuid.getnode())))
     print (own_mac)
-    #mac2 = '44:37:2C;2F:91:36'
-    #sta = Peer('abc1238', own_mac, 'STA')
     ap = Peer('abc1238', own_mac, 'AP')
 
     logger.info('Starting hunting and pecking to derive PE...\n')
 
-    #sta.initiate(mac2)
+    # Connect to the cloud server
     sock.listen(1)
     connection, client_address = sock.accept()
     with connection:
@@ -577,23 +564,12 @@ def handshake():
     	print()
     	logger.info('Starting dragonfly commit exchange...\n')
 
-    #scalar_sta, element_sta = sta.commit_exchange()
     	scalar_ap, element_ap = ap.commit_exchange()
     
-    #while 1:
-        #connection.sendall(str(scalar_ap).encode())
-        #if not scalar_ap:
-        	#break
-    #connection.sendall(str(element_ap).encode())
-
     	connection.sendall(str.encode("\n".join([str(scalar_ap), str(element_ap)])))
     	print()
     	logger.info('Computing shared secret...\n')
 
-    #sta_token = sta.compute_shared_secret(element_ap, scalar_ap, mac2)
-    #ap_token = ap.compute_shared_secret(element_sta, scalar_sta, mac1)
-    #scalar_sta = connection.recv(1024).decode()
-    #element_sta = connection.recv(1024).decode()
     	scalar_element_ap = connection.recv(1024).decode()
     	data = scalar_element_ap.split('\n')
     	print (data[0])
@@ -615,7 +591,6 @@ def handshake():
     	logger.info('Confirm Exchange...\n')
     	sta_token = connection.recv(1024).decode()
 
-    #sta.confirm_exchange(ap_token)
     	PMK_Key = ap.confirm_exchange(sta_token)
     	#print (PMK_Key)
  
@@ -624,24 +599,19 @@ def handshake():
     	print("Encrypted ciphertext: ", encrypted.decode('utf-8'))
     	connection.send(encrypted)
 
-    	# Running c++
-    	#cmd = "Adder_alice.c"
+    	# Running c++ Adder_alice to get the public key
     	print ("Getting keys...\n")
-    	#subprocess.call(["gcc",cmd])
-    	#subprocess.call(["gcc","Adder_alice.c"])
-    	#subprocess.call("./Adder_test_alice")
-    	#key = subprocess.call("./Adder_test_alice")
-    	#subprocess.call("./Adder_alice")
-    	#s = open("secret.key", "rb")
-    	#secret_key = s.read()
     	print("Printing cloud key...\n")
     	cloud_key = "cloud.key"
 
     	output_cloud_key = encrypting(PMK_Key, cloud_key)
     	print("This file ", output_cloud_key, " is encrypted cloud key\n")
+        # Open the file and read its content
     	s = open(output_cloud_key, "rb")
     	content = s.read(8192)
     	print (content)
+        
+        # Send the file to the cloud server
     	while (content):
     		connection.send(content)
     		print("Sent", repr(content))
