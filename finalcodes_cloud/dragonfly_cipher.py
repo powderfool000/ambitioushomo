@@ -619,13 +619,15 @@ def handshake():
     answer_data = "answer.data"
     print("This file ", answer_data, "is our computed answer\n")
     
+    '''
     # Open the file and read its content
     f = open('answer.data', "rb")
     answer = f.read(8192)
     print(answer)
+    '''
     
+    # Send size of answer file to the client
     ans_size = os.path.getsize(answer_data)
-    # Send size of file to the client
     sock.send(str(ans_size).encode('utf-8'))
 
     print("Sending answer...\n")
