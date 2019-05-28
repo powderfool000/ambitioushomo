@@ -511,7 +511,7 @@ class Peer:
         H.update(message)
         digest = H.digest()
         return digest
-
+'''
 BLOCK_SIZE = 16
 pad = lambda s: bytes(s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) %     BLOCK_SIZE), 'utf-8')
 unpad = lambda s: s[:-ord(s[-1:])]
@@ -522,7 +522,7 @@ def encrypt(raw, PMK):
     	iv = Random.new().read(AES.block_size)
     	cipher = AES.new(PMK, AES.MODE_CBC, iv)
     	return base64.b64encode(iv + cipher.encrypt(raw))
-
+'''
 def encrypting(key, filename):
     	chunksize = 64*1024
     	outputFile = filename+".hacklab"
