@@ -587,12 +587,12 @@ def handshake():
     PMK_Key = sta.confirm_exchange(ap_token)
     #print (PMK_Key)
 
-    encrypted = sock.recv(1024).decode()
-    print ("Encrypted ciphertext: ", encrypted)
+    #encrypted = sock.recv(1024).decode()
+    #print ("Encrypted ciphertext: ", encrypted)
 
     # Decrypt using PMK_Key
-    decrypted = decrypt(encrypted, PMK_Key)
-    print (decrypted.decode())
+    #decrypted = decrypt(encrypted, PMK_Key)
+    #print (decrypted.decode())
 
     # Open the received secret file from the key generator
     with open('received_secret_key', 'wb') as s:
