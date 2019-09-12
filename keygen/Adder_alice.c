@@ -1,8 +1,33 @@
 #include <tfhe/tfhe.h>
 #include <tfhe/tfhe_io.h>
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 int main() {
+
+    
+    FILE *fptr;
+    //fptr = fopen("KeyGenTime.txt","w");
+    const char* fname = "KeyGenTime.csv";
+
+    //checks if file exists
+    if( access( fname, F_OK ) != -1 ) {
+        // file exists
+        printf("File exists, appending .....\n");
+        fptr = fopen(fname, "a");   
+    } else {
+        // file doesn't exist
+        printf("File does not exist, creating new file .....\n");
+        fptr = fopen(fname, "w");
+        fprintf(fptr,"Key Generation Time: \n");
+    }
+
+    //declare time details
+    struct timeval start, end;
+    double get_time;
+    gettimeofday(&start, NULL);
 
     // generate a keyset
     const int minimum_lambda = 110;
@@ -48,6 +73,14 @@ int main() {
     FILE* cloud_key = fopen("cloud.key","wb");
     export_tfheGateBootstrappingCloudKeySet_toFile(cloud_key, &key->cloud);
     fclose(cloud_key);
+
+    gettimeofday(&end, NULL);
+    get_time = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) * 1.0E-6;
+    printf("Key Generation Time: %lf\n", get_time);
+
+    fprintf(fptr,"%lf\n", get_time);
+    fclose(fptr);
+
 
     /*
     // export the 32 ciphertexts to a file (for the cloud)
