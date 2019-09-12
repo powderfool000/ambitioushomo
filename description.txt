@@ -1,0 +1,15 @@
+This branch contains the updated codes to show more accurately how the codes should work in terms of its functionalities.
+
+The python scripts for this branch contains time recording properties to check how much time is needed to run the whole setup.
+There will be timings saved to csv files which can be used as reference for later on.
+
+There is 3 VMs in the entire setup, keygen, client and cloud, which you can tell from the naming of the folders.
+ 
+Add the files of each folder to its respective VMs.
+
+To start the setup:
+
+1) start AES_server.py on keygen then start AES_client.py on client
+2) start AES_server_cloud.py on keygen then start AES_client_cloud.py on cloud
+3) start Homo_client_alone.py on client then start Homo_cloud.alone.py on cloud
+
