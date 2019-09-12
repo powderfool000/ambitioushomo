@@ -1,0 +1,7 @@
+#!/bin/bash
+
+g++ -o Adder_alice Adder_alice.c -ltfhe-spqlios-avx -std=c++11
+
+chmod 755 Adder_alice
+
+./Adder_alice
