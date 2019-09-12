@@ -1,0 +1,7 @@
+#!/bin/bash
+
+g++ -o Adder_cloud Adder_cloud.c -fopenmp -ltfhe-spqlios-avx -std=c++11
+
+chmod 755 Adder_cloud
+
+./Adder_cloud
